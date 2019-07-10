@@ -1,0 +1,120 @@
+{% load staticfiles tags %}
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Blog</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="{% static 'My_blog/css/main1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://kit.fontawesome.com/a1abffa7c2.js"></script>
+    {# <script rel="stylesheet" href="{% static 'My_blog/js/jquery-3.4.1.min.js' %}"></script> #}
+    {% block page_head %}
+    {% endblock %}
+</head>
+
+<body>
+    {% tags as tags %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-secondary">
+        <a class="navbar-brand" href="/">Main page</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'posts_list' %}">Posts <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item active">
+                    <div class="dropdown">
+                        <button class="dropbtn">Tags</button>
+                        <div class="dropdown-content">
+                            {% for tag in tags %}
+                            <a href="{{ tag.get_absolute_url }}">{{ tag.title|capfirst }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url 'profile_list' %}">All users</a>
+                </li>
+            </ul>
+            <div class="navbar-nav">
+                {% if user.is_authenticated %}
+                {% block button %}
+                {% endblock %}
+                <a class="nav-item nav-link" href="{% url 'profile' user.id%}">
+                    <div>{{ user.username }}
+                        <img class="rounded-circle account-img" width="30px" height="30px" src="{{ user.profile.image.url }}" alt="">
+                    </div>
+                </a>
+                <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                <a class="nav-item nav-link" href="{% url 'login' %}">Login</a>
+                <a class="nav-item nav-link" href="{% url 'register' %}">Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    {% block page_content %}
+    {% endblock %}
+    <script>
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    var csrftoken = getCookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+    </script>
+    <script type="text/javascript">
+    const cardImages = document.querySelectorAll('.card-img');
+
+    for (let i = 0; i < cardImages.length; i++) {
+        const cardImage = cardImages[i];
+        cardImage.addEventListener('mousemove', startRotate);
+        cardImage.addEventListener('mouseout', stopRotate)
+    }
+
+    function startRotate(event) {
+        // const carditem = this.querySelector('.card-img');
+        const halfHeight = this.offsetHeight / 2;
+        const halfWidth = this.offsetWidth / 2;
+        this.style.transform = 'rotateX(' + -(event.offsetY - halfHeight) / 10 + 'deg) rotateY(' + (event.offsetX - halfWidth) / 10 + 'deg)';
+    }
+
+    function stopRotate(event) {
+        // const cardItem = this.querySelector('.card-img');
+        this.style.transform = 'rotate(0)';
+    }
+    </script>
+</body>
+
+</html>
